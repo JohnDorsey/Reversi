@@ -21,7 +21,6 @@ import pythagoras.f.IDimension;
  */
 public class GameView extends GroupLayer {
     
-    //private final Tile[] ptiles = new Tile[Reversi.Piece.values().length];
     
     private final Reversi game;
     private final BoardView bview;
@@ -55,11 +54,6 @@ public class GameView extends GroupLayer {
    
 
     
-//        Layer top = new Layer() {
-//            protected void paintImpl (Surface surf) {
-//                surf.setFillColor(0x0066BBBB).fillRect(30, 30, size.width() - 60, size.height() - 60);
-//            }
-//        };
     Layer top = addPiece();
     
         top.setInteractive(true);
@@ -75,36 +69,17 @@ public class GameView extends GroupLayer {
         });
         
         
-        
-        // draw a black piece and white piece into a single canvas image
-//    final float size = Settings.cellSize-2, hsize = size/2;
-//    Canvas canvas = game.plat.graphics().createCanvas(2*size, size);
-//    canvas.setFillColor(0xFF000000).fillCircle(hsize, hsize, hsize).
-//      setStrokeColor(0xFFFFFFFF).setStrokeWidth(2).strokeCircle(hsize, hsize, hsize-1);
-//    canvas.setFillColor(0xFFFFFFFF).fillCircle(size+hsize, hsize, hsize).
-//      setStrokeColor(0xFF000000).setStrokeWidth(2).strokeCircle(size+hsize, hsize, hsize-1);
-
-    // convert the image to a texture and extract a texture region (tile) for each piece
-//    Texture ptex = canvas.toTexture(Texture.Config.UNMANAGED);
-//    ptiles[Reversi.Piece.BLACK.ordinal()] = ptex.tile(0, 0, size, size);
-//    ptiles[Reversi.Piece.WHITE.ordinal()] = ptex.tile(size, 0, size, size);
-
+  
     addPieces();
-    // dispose our pieces texture when this layer is disposed
-    //onDisposed(ptex.disposeSlot());
-    //final Reversi.Coord ic;
-    //final int i;
     
   }
     
      
 private ImageLayer addPiece () {
     ImageLayer pview = new ImageLayer(ptiles[0]);
-    //pview.setOrigin(Layer.Origin.CENTER);
     pview.setOrigin(0, 0);
     pview.setSize(2048f, 2048f);
 
-    //pgroup.addAt(pview, bview.cell(at.x), bview.cell(at.y));
     return pview;
   }
     
@@ -134,8 +109,6 @@ private ImageLayer addPiece () {
     }
     
     
-    //public void doTurn(int player) {
-    //}
     
     public void onBoardClick(int x, int y) { //called by click event for board
         doTurn((int) Math.floor((float) x / Settings.cellSize), (int) Math.floor((float) y / Settings.cellSize));
@@ -146,10 +119,6 @@ private ImageLayer addPiece () {
         if (doClick(Settings.currentPlayer, x, y)) { Settings.nextTurn(); } else { System.out.println("GameView.doTurn: click failed"); }
     }
     
-//    public boolean isClickOnBoard(int x, int y) {
-//        //if (x < game.size.width() - game.size.height() / 2
-//        return true;
-//    }
     
     
     
@@ -166,13 +135,6 @@ private ImageLayer addPiece () {
         result = doDirectional(player, x, y, -1, -1) || result;
         result = doDirectional(player, x, y, 0, -1) || result;
         result = doDirectional(player, x, y, 1, -1) || result;
-        //System.out.println("GameView.doClick: done playing Up");
-        //result = doDirectional(player, x, y, 1) || result;
-        //System.out.println("GameView.doClick: done playing Right");
-        //result = doDirectional(player, x, y, 2) || result;
-        //System.out.println("GameView.doClick: done playing Down");
-        //result = doDirectional(player, x, y, 3) || result;
-        //System.out.println("GameView.doClick: done playing Left");
         if (result) { pieces[x][y].setOwner(player); }
         return result;
     }
@@ -208,14 +170,6 @@ private ImageLayer addPiece () {
         int currentY = y;
         play:
         for (int i = 0; i < Settings.boardSize; i++) {
-            //if (direction > 0 && direction
-//            switch (direction) {
-//                case 0: { currentY--; } break;
-//                case 1: { currentY++; } break;
-//                case 2: { currentX--; } break;
-//                case 3: { currentX++; } break;
-//                default: { System.out.println("GameView.doPlayDirection: unrecognised direction: " + direction); } break;
-//            }
             currentX += hDirection;
             currentY += vDirection;
             if (currentX < 0 || currentX >= Settings.boardSize || currentY < 0 || currentY >= Settings.boardSize) {
@@ -241,13 +195,6 @@ private ImageLayer addPiece () {
         //System.out.println("first loop of gameview.getsequence completed");
         get:
         for (int i = 0; i < Settings.boardSize; i++) {
-//            switch (direction) {
-//                case 0: { currentY--; } break;
-//                case 1: { currentY++; } break;
-//                case 2: { currentX--; } break;
-//                case 3: { currentX++; } break;
-//                default: { System.out.println("GameView.getSequence: unrecognised direction: " + direction); } break;
-//            }
             currentX += hDirection;
             currentY += vDirection;
             //System.out.println("GameView.getSequence: second loop: i is " + i + ", currentX is " + currentX + ", currentY is " + currentY);
@@ -265,9 +212,5 @@ private ImageLayer addPiece () {
     
     
 
-//  @Override public void close () {
-//    super.close();
-//    ptiles[0].texture().close(); // both ptiles reference the same texture
-//  }
     
 }

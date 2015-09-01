@@ -16,10 +16,6 @@ import playn.scene.Mouse;
 public class Piece {
     
     public Layer pieceLayer;
-    //public Mouse.LayerListener pointerListener;
-        //addListener(Pointer.Listener pointerListener)
-    
-    //public static enum owner {BLACK, WHITE, EMPTY};
     
     
     public int thisPiecesOwner;
@@ -34,7 +30,6 @@ public class Piece {
     public void create() {
         
         pieceLayer = new Layer() { protected void paintImpl (Surface surf) {
-            //surf.setFillColor(0xFF99BBBB).fillRect(Settings.xFromI(Settings.i) * bview.cellSize, Settings.yFromI(Settings.i) * bview.cellSize, 20, 20);
             
             surf.setFillColor(0xFFFFFFFF).fillRect(9, 9, Settings.cellSize - 16, Settings.cellSize - 16);
         }};
@@ -56,18 +51,3 @@ public class Piece {
         pieceLayer.setTint(newColor);
     }
 }
-//    public void setColor(int newOwner) {
-//        thisPiecesOwner = newOwner;
-//        switch (thisPiecesOwner) {
-//            case 1: {
-//                
-//            } 
-//        }
-//    }
-
-    //@Override
-    //protected void paintImpl(Surface surf) {
-    //    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    //}
-    
-
