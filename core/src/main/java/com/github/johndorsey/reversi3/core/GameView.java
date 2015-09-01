@@ -1,17 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
+
 package com.github.johndorsey.reversi3.core;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import playn.core.Canvas;
 import playn.core.Surface;
 import playn.core.Texture;
 import playn.core.Tile;
 import playn.scene.GroupLayer;
+import playn.scene.ImageLayer;
 import playn.scene.Layer;
+import playn.scene.Pointer;
 import pythagoras.f.IDimension;
 
 /**
@@ -27,13 +28,53 @@ public class GameView extends GroupLayer {
     public final Piece[][] pieces = new Piece[Settings.boardSize][Settings.boardSize];
     private final GroupLayer pgroup = new GroupLayer();
 
+    private final Tile[] ptiles = new Tile[3];
+    
     
     public GameView (Reversi game, IDimension viewSize) {
         this.game = game;
         this.bview = new BoardView(game, viewSize);
-        addCenterAt(bview, viewSize.width()/2, viewSize.height()/2);
+        addCenterAt(bview, bview.width()/2, viewSize.height()/2);
         addAt(pgroup, bview.tx(), bview.ty());
     
+        
+        Canvas canvas = game.plat.graphics().createCanvas(2*Settings.cellSize, Settings.cellSize);
+    canvas.setFillColor(0x00000000).fillCircle(Settings.cellSize, Settings.cellSize, Settings.cellSize).
+      setStrokeColor(0x00FFFFFF).setStrokeWidth(2).strokeCircle(Settings.cellSize, Settings.cellSize, Settings.cellSize-1);
+    canvas.setFillColor(0xFFFFFFFF).fillCircle(Settings.cellSize+Settings.cellSize, Settings.cellSize, Settings.cellSize).
+      setStrokeColor(0xFF000000).setStrokeWidth(2).strokeCircle(Settings.cellSize+Settings.cellSize, Settings.cellSize, Settings.cellSize-1);
+    canvas.setFillColor(0xFFFFFFFF).fillCircle(Settings.cellSize * 3, Settings.cellSize, Settings.cellSize).
+      setStrokeColor(0xFF000000).setStrokeWidth(2).strokeCircle(Settings.cellSize * 3, Settings.cellSize, Settings.cellSize-1);
+
+    // convert the image to a texture and extract a texture region (tile) for each piece
+    Texture ptex = canvas.toTexture(Texture.Config.UNMANAGED);
+    ptiles[0] = ptex.tile(0, 0, Settings.cellSize, Settings.cellSize);
+    ptiles[1] = ptex.tile(Settings.cellSize, 0, Settings.cellSize, Settings.cellSize);
+    ptiles[2] = ptex.tile(Settings.cellSize * 2, 0, Settings.cellSize, Settings.cellSize);
+    
+   
+
+    
+//        Layer top = new Layer() {
+//            protected void paintImpl (Surface surf) {
+//                surf.setFillColor(0x0066BBBB).fillRect(30, 30, size.width() - 60, size.height() - 60);
+//            }
+//        };
+    Layer top = addPiece();
+    
+        top.setInteractive(true);
+        game.rootLayer.setInteractive(true);
+        game.rootLayer.add(top);
+    
+        
+        top.events().connect(new Pointer.Listener() {
+            @Override public void onStart (Pointer.Interaction iact) {
+                System.out.println("Reversi: CLICK @" + iact.x() + " " + iact.y());
+                onBoardClick((int) iact.x(), (int) iact.y());
+            }
+        });
+        
+        
         
         // draw a black piece and white piece into a single canvas image
 //    final float size = Settings.cellSize-2, hsize = size/2;
@@ -54,6 +95,17 @@ public class GameView extends GroupLayer {
     //final Reversi.Coord ic;
     //final int i;
     
+  }
+    
+     
+private ImageLayer addPiece () {
+    ImageLayer pview = new ImageLayer(ptiles[0]);
+    //pview.setOrigin(Layer.Origin.CENTER);
+    pview.setOrigin(0, 0);
+    pview.setSize(2048f, 2048f);
+
+    //pgroup.addAt(pview, bview.cell(at.x), bview.cell(at.y));
+    return pview;
   }
     
 
@@ -91,7 +143,7 @@ public class GameView extends GroupLayer {
     
     public void doTurn(int x, int y) {
         //System.out.println("doTurn called for " + x + ", " + y);
-        if (doClick(2, x, y)) { Settings.nextTurn(); }
+        if (doClick(Settings.currentPlayer, x, y)) { Settings.nextTurn(); } else { System.out.println("GameView.doTurn: click failed"); }
     }
     
 //    public boolean isClickOnBoard(int x, int y) {
