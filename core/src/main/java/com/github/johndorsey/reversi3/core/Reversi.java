@@ -18,6 +18,8 @@ public class Reversi extends SceneGame {
 
     public final Pointer pointer;
     
+    //public GameView gameview;// = new GameView(this, size);
+    
     
     
     public Reversi (Platform plat) {
@@ -79,6 +81,9 @@ public class Reversi extends SceneGame {
         //gameview.doTurn(3, 2);
         //gameview.onBoardClick(200, 143);
         //gameview.onBoardClick(143, 143);
+        
+        
+        
         Settings.currentPlayer = 2;
     
     }

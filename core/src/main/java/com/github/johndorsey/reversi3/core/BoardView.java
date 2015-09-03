@@ -25,7 +25,7 @@ public class BoardView extends Layer {
     }
 
     // we want %linewidth% extra pixels in width/height to account for the grid lines
-    @Override public float width() { return Settings.cellSize * Settings.boardSize + Settings.LINE_WIDTH; }
+    @Override public float width() { return Settings.cellSize * Settings.boardSize /*+ Settings.LINE_WIDTH*/; }
     @Override public float height() { return width(); } 
 
     @Override protected void paintImpl (Surface surf) {

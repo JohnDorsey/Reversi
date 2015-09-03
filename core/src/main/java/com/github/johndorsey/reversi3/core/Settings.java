@@ -18,6 +18,7 @@ public class Settings {
     public static boolean autoCenterSeeds = true;
     public static int playerCount = 2;
     
+    
     public static int currentPlayer = 2;
     
     
@@ -27,6 +28,17 @@ public class Settings {
     public static void nextTurn() {
         currentPlayer++;
         if (currentPlayer > playerCount) { currentPlayer = 1; }
+    }
+    
+    public static int colorFor(int who){
+        int result = 0xFF992222;
+        switch (who) {
+            case 1: { result = 0xFF111111; } break;
+            case 0: { result = 0xFF99BBBB; } break;
+            case 2: { result = 0xFFEEEEEE; } break;
+            default: { System.err.println("Piece: setOwner: no such person: " + who); } break;
+        }
+        return result;
     }
   
     public static int xFromI(int i) {

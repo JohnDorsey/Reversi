@@ -17,37 +17,42 @@ public class Piece {
     
     public Layer pieceLayer;
     
+    public boolean tinted = false;
+    
     
     public int thisPiecesOwner;
     public boolean adjacent = false;
     
     public Piece(final int newOwner) {
-        create();
+        sPiece(newOwner, 9, Settings.cellSize - 16);
+    }
+    
+    public void sPiece(final int newOwner, final int s, final int e) {
+        create(s, e);
         setOwner(newOwner);
-        
     }
     
     public void create() {
-        
-        pieceLayer = new Layer() { protected void paintImpl (Surface surf) {
-            
-            surf.setFillColor(0xFFFFFFFF).fillRect(9, 9, Settings.cellSize - 16, Settings.cellSize - 16);
-        }};
-        
-        
-     
+        create(9, Settings.cellSize - 16);
     }
+    
+    public void create(final int s, final int e) {
+        pieceLayer = new Layer() { protected void paintImpl (Surface surf) {
+            surf.setFillColor(0xFFFFFFFF).fillRect(s, s, e, e);
+        }};
+    }
+    
+    public void setTint(boolean state) {
+        if (state != tinted) {
+            pieceLayer.setTint(pieceLayer.tint() + (((state)? 1 : -1) * 0x00111111));
+        }
+    }
+    
     
     public void setOwner(int newOwner) {
         thisPiecesOwner = newOwner;
         //System.out.println("Piece.setOwner: changing to " + newOwner);
-        int newColor = 0xFF992222;
-            switch (newOwner) {
-                case 1: { newColor = 0xFF111111; } break;
-                case 0: { newColor = 0xFF99BBBB; } break;
-                case 2: { newColor = 0xFFEEEEEE; } break;
-                default: { System.err.println("Piece: setOwner: no such person: " + newOwner); } break;
-            }    
-        pieceLayer.setTint(newColor);
+            
+        pieceLayer.setTint(Settings.colorFor(newOwner));
     }
 }

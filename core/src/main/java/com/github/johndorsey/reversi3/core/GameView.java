@@ -29,12 +29,17 @@ public class GameView extends GroupLayer {
 
     private final Tile[] ptiles = new Tile[3];
     
+    public Piece turnIndicator = new Piece(0);
+    
+    
     
     public GameView (Reversi game, IDimension viewSize) {
         this.game = game;
         this.bview = new BoardView(game, viewSize);
         addCenterAt(bview, bview.width()/2, viewSize.height()/2);
         addAt(pgroup, bview.tx(), bview.ty());
+        
+        turnIndicator.sPiece(0, (int) (Settings.cellSize * 0.5f), (int) (Settings.cellSize * 1.5f));
     
         
         Canvas canvas = game.plat.graphics().createCanvas(2*Settings.cellSize, Settings.cellSize);
@@ -54,28 +59,33 @@ public class GameView extends GroupLayer {
    
 
     
-    Layer top = addPiece();
+    Layer top = getTopLayer();
     
-        top.setInteractive(true);
-        game.rootLayer.setInteractive(true);
-        game.rootLayer.add(top);
+    top.setInteractive(true);
+    game.rootLayer.setInteractive(true);
+    game.rootLayer.add(top);
     
         
-        top.events().connect(new Pointer.Listener() {
-            @Override public void onStart (Pointer.Interaction iact) {
-                System.out.println("Reversi: CLICK @" + iact.x() + " " + iact.y());
-                onBoardClick((int) iact.x(), (int) iact.y());
-            }
-        });
-        
-        
+    top.events().connect(new Pointer.Listener() {
+        @Override public void onStart (Pointer.Interaction iact) {
+            System.out.println("Reversi: CLICK @" + iact.x() + " " + iact.y());
+            onBoardClick((int) iact.x(), (int) iact.y());
+        }
+    });
+    
+    turnIndicator.pieceLayer.setOrigin(-Settings.cellSize * Settings.boardSize, -Settings.cellSize);
+    //System.out.println("GameView: " + bview.width() * 1.1f);
+    game.rootLayer.add(turnIndicator.pieceLayer);
+    
   
     addPieces();
+    
+    
     
   }
     
      
-private ImageLayer addPiece () {
+private ImageLayer getTopLayer() {
     ImageLayer pview = new ImageLayer(ptiles[0]);
     pview.setOrigin(0, 0);
     pview.setSize(2048f, 2048f);
@@ -105,45 +115,90 @@ private ImageLayer addPiece () {
         pieces[usedCenterX + 1][usedCenterY + 1].setOwner(1);
         pieces[usedCenterX + 1][usedCenterY].setOwner(2);
         pieces[usedCenterX][usedCenterY + 1].setOwner(2);
-        
     }
     
     
     
     public void onBoardClick(int x, int y) { //called by click event for board
+        if (x > bview.width()) { return; }
         doTurn((int) Math.floor((float) x / Settings.cellSize), (int) Math.floor((float) y / Settings.cellSize));
     }
     
     public void doTurn(int x, int y) {
         //System.out.println("doTurn called for " + x + ", " + y);
-        if (doClick(Settings.currentPlayer, x, y)) { Settings.nextTurn(); } else { System.out.println("GameView.doTurn: click failed"); }
+        if (doClick(Settings.currentPlayer, x, y, true)) { Settings.nextTurn(); } else { System.out.println("GameView.doTurn: click failed"); }
+        if (isDone()) { System.out.println("GameView: DONE"); }
+        turnIndicator.setOwner(Settings.currentPlayer);
+    }
+    
+    public boolean isDone() {
+        //boolean isPresent[] = new boolean[Settings.playerCount + 1];
+        
+        int active = 0;
+        for (int i = 0; i < Settings.playerCount + 1; i++) {
+            if (isPresent(i)) { active++; }
+        }
+        //for (int i = 0; i < Settings.playerCount + 1; i++) {
+        //    active += (isPresent[i])? 1 : 0;
+        //}
+        return (active < 3);
+    }
+    
+    public boolean isPresent(int who) {
+        //boolean result = false;
+        for (Piece row[] : pieces) {
+            for (Piece item : row) {
+                if (item.thisPiecesOwner == who) { return true; }
+            }
+        }
+        return false;
+    }
+    
+    public boolean canPlay(int player) {
+        boolean result = false;
+        for (int x = 0; x < Settings.boardSize; x++) {
+            for (int y = 0; y < Settings.boardSize; y++) {
+                result = result || doClick(player, x, y, false);
+            }
+        }
     }
     
     
     
     
-    
-    public boolean doClick(int player, int x, int y) {
+    public boolean doClick(int player, int x, int y, boolean act) {
         //System.out.println("doClick called for " + x + ", " + y);
-        if (pieces[x][y].thisPiecesOwner != 0) { System.out.println("player " + player + " clicked a piece at " + x + ", " + y); return false; }
         boolean result = false;
-        result = doDirectional(player, x, y, 1, 0) || result;
-        result = doDirectional(player, x, y, 1, 1) || result;
-        result = doDirectional(player, x, y, 0, 1) || result;
-        result = doDirectional(player, x, y, -1, 1) || result;
-        result = doDirectional(player, x, y, -1, 0) || result;
-        result = doDirectional(player, x, y, -1, -1) || result;
-        result = doDirectional(player, x, y, 0, -1) || result;
-        result = doDirectional(player, x, y, 1, -1) || result;
-        if (result) { pieces[x][y].setOwner(player); }
+        try {
+            if (pieces[x][y].thisPiecesOwner != 0) { System.out.println("player " + player + " clicked a piece at " + x + ", " + y); return false; }
+        
+            result = doDirectional(player, x, y, 1, 0, act) || result;
+            result = doDirectional(player, x, y, 1, 1, act) || result;
+            result = doDirectional(player, x, y, 0, 1, act) || result;
+            result = doDirectional(player, x, y, -1, 1, act) || result;
+            result = doDirectional(player, x, y, -1, 0, act) || result;
+            result = doDirectional(player, x, y, -1, -1, act) || result;
+            result = doDirectional(player, x, y, 0, -1, act) || result;
+            result = doDirectional(player, x, y, 1, -1, act) || result;
+            if (act) {
+                if (result) {
+                    pieces[x][y].setOwner(player);
+                }
+            } else {
+                pieces[x][y].setTint(result);
+            }
+            
+        } catch (ArrayIndexOutOfBoundsException a) {
+            System.out.println("GameView.doClick: " + x + ", " + y + " isn't a square");
+        }
         return result;
     }
     
-    public boolean doDirectional(int player, int x, int y, int vDirection, int hDirection) {
+    public boolean doDirectional(int player, int x, int y, int vDirection, int hDirection, boolean act) {
         //System.out.println("GameView.doDirectional: now testing " + direction);
         if (sequenceIsPlayable(player, getSequence(x, y, vDirection, hDirection))) {
             //System.out.println("GameView.doDirectional: " + direction + " is playable");
-            doPlayDirection(player, x, y, vDirection, hDirection);
+            if (act) { doPlayDirection(player, x, y, vDirection, hDirection); }
             return true;
         } else {
             //System.out.println("GameView.doDirectional: " + direction + " is not playable");
