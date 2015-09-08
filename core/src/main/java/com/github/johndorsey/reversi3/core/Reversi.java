@@ -36,13 +36,13 @@ public class Reversi extends SceneGame {
 
         rootLayer.add(new Layer() {
             protected void paintImpl (Surface surf) {
-                surf.setFillColor(0xFFCCCCCC).fillRect(0, 0, size.width(), size.height());
+                surf.setFillColor(Settings.bgLight).fillRect(0, 0, size.width(), size.height());
             }
         });
     
         rootLayer.add(new Layer() {
             protected void paintImpl (Surface surf) {
-                surf.setFillColor(0xFFBBBBBB).fillRect(0, 10, size.width(), size.height() - 20);
+                surf.setFillColor(Settings.bgDark).fillRect(0, 10, size.width(), size.height() - 20);
             }
         });
     
@@ -85,6 +85,8 @@ public class Reversi extends SceneGame {
         
         
         Settings.currentPlayer = 2;
+        Settings.plat = plat;
+        System.out.println(gameview.canPlay(2));
     
     }
     

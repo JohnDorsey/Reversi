@@ -5,6 +5,8 @@
  */
 package com.github.johndorsey.reversi3.core;
 
+import playn.core.Platform;
+
 /**
  *
  * @author John
@@ -18,12 +20,18 @@ public class Settings {
     public static boolean autoCenterSeeds = true;
     public static int playerCount = 2;
     
+    public static int bgLight = 0xFFCCCCCC;
+    public static int bgDark = 0xFFBBBBBB;
+    
     
     public static int currentPlayer = 2;
+    //public static boolean canPlay[] = new boolean[playerCount];
     
     
     public static final float LINE_WIDTH = 2;
     public static int cellSize = 57;
+    
+    public static Platform plat;
     
     public static void nextTurn() {
         currentPlayer++;
@@ -48,6 +56,19 @@ public class Settings {
     public static int yFromI(int i) {
         return (int) Math.floor((i / boardSize) + 0.1f);
     }
+    
+    //public static void updateDimensions() {
+    //    cellSize = (int) plat.graphics().viewSize.height();
+    //}
+    
+//    public static boolean isPlayable() {
+//        boolean result = false;
+//        for (boolean b : canPlay) {
+//            result = result || b;
+//            System.out.println("Settings.isPlayable: " + b);
+//        }
+//        return result;
+//    }
   
     
 }

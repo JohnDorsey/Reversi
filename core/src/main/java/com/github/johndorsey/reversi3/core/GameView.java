@@ -68,6 +68,7 @@ public class GameView extends GroupLayer {
         
     top.events().connect(new Pointer.Listener() {
         @Override public void onStart (Pointer.Interaction iact) {
+            //Settings.updateDimensions();
             System.out.println("Reversi: CLICK @" + iact.x() + " " + iact.y());
             onBoardClick((int) iact.x(), (int) iact.y());
         }
@@ -126,9 +127,45 @@ private ImageLayer getTopLayer() {
     
     public void doTurn(int x, int y) {
         //System.out.println("doTurn called for " + x + ", " + y);
+        //if (isDone()) { System.out.println("GameView: DONE"); }
+            
         if (doClick(Settings.currentPlayer, x, y, true)) { Settings.nextTurn(); } else { System.out.println("GameView.doTurn: click failed"); }
-        if (isDone()) { System.out.println("GameView: DONE"); }
-        turnIndicator.setOwner(Settings.currentPlayer);
+
+        
+            if (isDone()) { System.out.println("GameView: DONE"); sand(); /* for (int ii = 0; ii < Settings.playerCount; ii++) { Settings.canPlay[ii] = false; } */  }
+            //for (int i = 0; i < Settings.playerCount; i++) {
+            //    if (!canPlay(i)) { Settings.nextTurn(); }
+            //}
+            canPlay(Settings.currentPlayer);
+            turnIndicator.setOwner(Settings.currentPlayer);
+        
+        
+    }
+    
+    
+    public void sand() {
+        while(sandStep()) { }
+    }
+
+    public boolean sandStep() {
+        int acts = 0;
+        int carryOwner = 0;
+        int xinc = 1;
+        int yinc = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int x = 0; x + 1 < Settings.boardSize; x++) {
+                for (int y = 0; y + 1 < Settings.boardSize; y++) {
+                    if (pieces[x][y].thisPiecesOwner < pieces[x+xinc][y+yinc].thisPiecesOwner) {
+                        carryOwner = pieces[x][y].thisPiecesOwner;
+                        pieces[x][y].setOwner(pieces[x+xinc][y+yinc].thisPiecesOwner);
+                        pieces[x+xinc][y+yinc].setOwner(carryOwner);
+                        acts++;
+                    }
+                }
+            }
+            xinc = (i==2)? 0 : 1; yinc = 1;
+        }
+        return acts > 0;
     }
     
     public boolean isDone() {
@@ -138,10 +175,14 @@ private ImageLayer getTopLayer() {
         for (int i = 0; i < Settings.playerCount + 1; i++) {
             if (isPresent(i)) { active++; }
         }
+        int canPlay = 0;
+        for (int i = 1; i < Settings.playerCount + 1; i++) {
+            if (canPlay(i)) { canPlay++; }
+        }
         //for (int i = 0; i < Settings.playerCount + 1; i++) {
         //    active += (isPresent[i])? 1 : 0;
         //}
-        return (active < 3);
+        return (active < 3) || (canPlay  == 0);
     }
     
     public boolean isPresent(int who) {
@@ -155,12 +196,17 @@ private ImageLayer getTopLayer() {
     }
     
     public boolean canPlay(int player) {
-        boolean result = false;
+        return (playablePlaces(player) > 0);
+    }
+    
+    public int playablePlaces(int player) {
+        int result = 0;
         for (int x = 0; x < Settings.boardSize; x++) {
             for (int y = 0; y < Settings.boardSize; y++) {
-                result = result || doClick(player, x, y, false);
+                result += (doClick(player, x, y, false)? 1 : 0);
             }
         }
+        return result;
     }
     
     
@@ -170,7 +216,7 @@ private ImageLayer getTopLayer() {
         //System.out.println("doClick called for " + x + ", " + y);
         boolean result = false;
         try {
-            if (pieces[x][y].thisPiecesOwner != 0) { System.out.println("player " + player + " clicked a piece at " + x + ", " + y); return false; }
+            if (pieces[x][y].thisPiecesOwner != 0) { /*System.out.println("player " + player + " clicked a piece at " + x + ", " + y);*/ return false; }
         
             result = doDirectional(player, x, y, 1, 0, act) || result;
             result = doDirectional(player, x, y, 1, 1, act) || result;
@@ -191,6 +237,7 @@ private ImageLayer getTopLayer() {
         } catch (ArrayIndexOutOfBoundsException a) {
             System.out.println("GameView.doClick: " + x + ", " + y + " isn't a square");
         }
+        //System.out.println("doClick: " + result);
         return result;
     }
     

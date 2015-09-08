@@ -44,9 +44,11 @@ public class Piece {
     
     public void setTint(boolean state) {
         if (state != tinted) {
-            pieceLayer.setTint(pieceLayer.tint() + (((state)? 1 : -1) * 0x00111111));
+            pieceLayer.setTint(((state)? Settings.bgDark - 0x00111111 : Settings.colorFor(thisPiecesOwner)));
         }
+        tinted = state;
     }
+    
     
     
     public void setOwner(int newOwner) {
