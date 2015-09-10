@@ -30,6 +30,7 @@ public class GameView extends GroupLayer {
     private final Tile[] ptiles = new Tile[3];
     
     public Piece turnIndicator = new Piece(0);
+    public Piece newGame = new Piece(0);
     
     
     
@@ -40,7 +41,7 @@ public class GameView extends GroupLayer {
         addAt(pgroup, bview.tx(), bview.ty());
         
         turnIndicator.sPiece(0, (int) (Settings.cellSize * 0.5f), (int) (Settings.cellSize * 1.5f));
-    
+        newGame.sPiece(0, (int) Settings.cellSize, (int) Settings.cellSize);
         
         Canvas canvas = game.plat.graphics().createCanvas(2*Settings.cellSize, Settings.cellSize);
     canvas.setFillColor(0x00000000).fillCircle(Settings.cellSize, Settings.cellSize, Settings.cellSize).
@@ -59,12 +60,17 @@ public class GameView extends GroupLayer {
    
 
     
-    Layer top = getTopLayer();
+    Layer top = getTopLayer(0f, 0f, 2048f, 2048f);
     
     top.setInteractive(true);
     game.rootLayer.setInteractive(true);
     game.rootLayer.add(top);
     
+    //newGame = getTopLayer(0f, 0f, Settings.cellSize, Settings.cellSize);
+    newGame.pieceLayer.setOrigin(Settings.cellSize * (Settings.boardSize + 2), Settings.cellSize * 3);
+    newGame.pieceLayer.setTint(0xFFCCCCCC);
+    newGame.setOwner(1);
+    game.rootLayer.add(newGame.pieceLayer);
         
     top.events().connect(new Pointer.Listener() {
         @Override public void onStart (Pointer.Interaction iact) {
@@ -73,6 +79,8 @@ public class GameView extends GroupLayer {
             onBoardClick((int) iact.x(), (int) iact.y());
         }
     });
+    
+
     
     turnIndicator.pieceLayer.setOrigin(-Settings.cellSize * Settings.boardSize, -Settings.cellSize);
     //System.out.println("GameView: " + bview.width() * 1.1f);
@@ -86,10 +94,10 @@ public class GameView extends GroupLayer {
   }
     
      
-private ImageLayer getTopLayer() {
+private ImageLayer getTopLayer(float x, float y, float w, float h) {
     ImageLayer pview = new ImageLayer(ptiles[0]);
-    pview.setOrigin(0, 0);
-    pview.setSize(2048f, 2048f);
+    pview.setOrigin(x, y);
+    pview.setSize(w, h);
 
     return pview;
   }
@@ -121,8 +129,20 @@ private ImageLayer getTopLayer() {
     
     
     public void onBoardClick(int x, int y) { //called by click event for board
-        if (x > bview.width()) { return; }
-        doTurn((int) Math.floor((float) x / Settings.cellSize), (int) Math.floor((float) y / Settings.cellSize));
+        System.out.println("GameView.onBoardClick: newGame is at " + newGame.pieceLayer.originX() + ", " + newGame.pieceLayer.originY());
+        if (x > bview.width()) {
+            System.out.println("GameView.onBoardClick: newGame zone");
+
+            if (x > Settings.cellSize * Settings.boardSize && x < (Settings.cellSize * Settings.boardSize) + Settings.cellSize) {
+                            System.out.println("GameView.onBoardClick: newGame X");
+
+                if (y > Settings.cellSize * 3 && y < Settings.cellSize * 4) {
+                    System.out.println("GameView.onBoardClick: newGame clicked!");
+                }
+            }
+        } else {
+            doTurn((int) Math.floor((float) x / Settings.cellSize), (int) Math.floor((float) y / Settings.cellSize));
+        }
     }
     
     public void doTurn(int x, int y) {

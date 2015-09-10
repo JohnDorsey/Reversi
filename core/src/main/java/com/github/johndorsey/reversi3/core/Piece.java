@@ -8,6 +8,7 @@ package com.github.johndorsey.reversi3.core;
 import playn.core.Surface;
 import playn.scene.Layer;
 import playn.scene.Mouse;
+import playn.scene.Pointer;
 
 /**
  *
@@ -25,6 +26,14 @@ public class Piece {
     
     public Piece(final int newOwner) {
         sPiece(newOwner, 9, Settings.cellSize - 16);
+        
+        
+//        pieceLayer.events().connect(new Pointer.Listener() {
+//        @Override public void onStart (Pointer.Interaction iact) {
+//            //Settings.updateDimensions();
+//            System.out.println("Piece: CLICK @" + iact.x() + " " + iact.y());
+//        }
+//    });
     }
     
     public void sPiece(final int newOwner, final int s, final int e) {
